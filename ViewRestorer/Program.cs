@@ -3,19 +3,21 @@ using System.Text.RegularExpressions;
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        if (args.Length == 0)
+        Console.Write("Please enter the full path of the .sql file: ");
+        var inputFile = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(inputFile) || !File.Exists(inputFile))
         {
-            Console.WriteLine("Usage: dotnet run -- <backup.sql>");
+            Console.WriteLine("❌ File not found or path is empty.");
             return;
         }
 
-        var inputFile = args[0];
-        var createFile = "view_create_scripts.txt";
-        var dropFile = "view_drop_scripts.txt";
+        var baseDir = Path.GetDirectoryName(inputFile)!;
+        var createFile = Path.Combine(baseDir, "view_create_scripts.txt");
+        var dropFile = Path.Combine(baseDir, "view_drop_scripts.txt");
 
-        // Yalnız CREATE VIEW üçün regex
         var createRegex = new Regex(
             @"CREATE\s+(OR\s+REPLACE\s+)?VIEW\s+(?<full>((?<schema>""?\w+""?)\.)?(?<name>""?\w+""?))",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -49,7 +51,6 @@ class Program
                         var script = buffer.ToString();
                         creates.Add(script);
 
-                        // View adını çıxar
                         var m = createRegex.Match(script);
                         if (m.Success)
                         {
@@ -69,10 +70,8 @@ class Program
             }
         }
 
-        // CREATE VIEW scriptlərini yaz
         File.WriteAllLines(createFile, creates);
 
-        // DROP VIEW scriptlərini sondan önə yaz
         using (var writer = new StreamWriter(dropFile))
         {
             for (int i = viewNames.Count - 1; i >= 0; i--)
