@@ -5,6 +5,7 @@ class Program
 {
     static void Main()
     {
+        // ilk once postgresql-de plain formatda backup çıxarıb onu .sql fayl etmek lazımdır daha sonra hemin faylın full pathini daxil edirik. meselen C:\backups\mydb.sql
         Console.Write("Please enter the full path of the .sql file: ");
         var inputFile = Console.ReadLine();
 
